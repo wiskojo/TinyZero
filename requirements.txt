@@ -1,4 +1,5 @@
 accelerate
+chess
 codetiming
 datasets
 dill
