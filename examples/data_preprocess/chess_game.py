@@ -104,14 +104,14 @@ def make_prompt(position: str, template_type: str = "base") -> str:
     if template_type == "base":
         prompt = (
             f"A conversation between User and Assistant. The user asks a question, and the Assistant solves it.\n"
-            f'User: Given the chess position "{position}", what is the best move? Please explain your reasoning using <think> </think> tags. And return the final answer in valid UCI move format within <answer> </answer> tags, for example <answer> e2e4 </answer>.\n'
+            f'User: Given the chess position "{position}", what is the best move? Show your work in <think> </think> tags. And return the best move in UCI format within <move> </move> tags.\n'
             f"Assistant: Let me think step by step.\n"
             f"<think>"
         )
     elif template_type == "qwen-instruct":
         prompt = (
             f"<|im_start|>system\nYou are a helpful chess assistant. Analyze the chess position and provide the best move along with your reasoning.\n<|im_end|>\n"
-            f'<|im_start|>user\nGiven the chess position "{position}", what is the best move? Provide detailed reasoning in <think> </think> tags. And return the final answer in valid UCI move format within <answer> </answer> tags, for example <answer> e2e4 </answer>.<|im_end|>\n'
+            f'<|im_start|>user\nGiven the chess position "{position}", what is the best move? Show your work in <think> </think> tags. And return the best move in UCI format within <move> </move> tags.<|im_end|>\n'
             f"<|im_start|>assistant\nLet me think step by step.\n<think>"
         )
     else:

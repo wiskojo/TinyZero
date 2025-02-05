@@ -4,7 +4,7 @@ import random
 
 
 def extract_solution(solution_str):
-    """Extract the equation from the solution string."""
+    """Extract the move from the solution string."""
     # Remove everything before the first "Assistant:"
     if "Assistant:" in solution_str:
         solution_str = solution_str.split("Assistant:", 1)[1]
@@ -14,14 +14,14 @@ def extract_solution(solution_str):
         return None
     solution_str = solution_str.split('\n')[-1]
 
-    answer_pattern = r'<answer>(.*?)</answer>'
-    match = re.finditer(answer_pattern, solution_str)
+    move_pattern = r'<move>(.*?)</move>'
+    match = re.finditer(move_pattern, solution_str)
     matches = list(match)
     if matches:
-        final_answer = matches[-1].group(1).strip()
+        move = matches[-1].group(1).strip()
     else:
-        final_answer = None
-    return final_answer
+        move = None
+    return move
 
 
 def compute_score(solution_str, ground_truth, format_score=0.1, max_score=1.):
