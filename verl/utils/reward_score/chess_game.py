@@ -1,3 +1,4 @@
+import chess
 import re
 import random
 
@@ -50,20 +51,42 @@ def compute_score(solution_str, ground_truth, format_score=0.1, max_score=1.):
             print(f"No move found")
         return 0
     
+    # Check if position is valid (this should always be the case)
+    try:
+        board = chess.Board(position)
+    except ValueError:
+        if do_print:
+            print(f"Invalid board position: {position}")
+        return 0
+
+    # Check if move is valid UCI
+    try:
+        move_obj = chess.Move.from_uci(move)
+    except chess.InvalidMoveError:
+        if do_print:
+            print(f"Move {move} is invalid (bad UCI format).")
+        return 0
+    
+    # Check if move is legal in the current position
+    if not board.is_legal(move_obj):
+        if do_print:
+            print(f"Move {move} is not legal in the given position.")
+        return 0
+    
     # Check if move is in candidate moves
     for rank, candidate in enumerate(candidate_moves, start=1):
         if move == candidate['move']:
             cpl = candidate['cpl']
-            # Normalize CPL to a score between 0 and 1, anything larger than 20 cpl scores 0
-            score_value = max(0, 1 - (cpl / 20))
-            score = score_value * max_score
+            # Normalize CPL to a score between the midpoint of format_score and max_score, and max_score
+            midpoint = (format_score + max_score) / 2
+            score = max(midpoint, max_score - (cpl / 20) * (max_score - midpoint))
             
             if do_print:
-                print(f"Extracted move is the rank {rank} candidate move with CPL: {cpl}, Eval: {candidate['eval']}, Score: {score}")
+                print(f"Extracted move {move} is the rank {rank} candidate move with CPL: {cpl}, Eval: {candidate['eval']}, Score: {score}")
 
             return score
     
     if do_print:
-        print(f"Move not in candidate moves")
+        print(f"Move {move} not in candidate moves")
 
     return format_score
