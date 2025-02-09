@@ -12,9 +12,8 @@ def extract_solution(solution_str):
         solution_str = solution_str.split("<|im_start|>assistant", 1)[1]
     else:
         return None
-    solution_str = solution_str.split('\n')[-1]
 
-    move_pattern = r'<move>(.*?)</move>'
+    move_pattern = r'<answer>(.*?)</answer>'
     match = re.finditer(move_pattern, solution_str)
     matches = list(match)
     if matches:
@@ -24,7 +23,7 @@ def extract_solution(solution_str):
     return move
 
 
-def compute_score(solution_str, ground_truth, format_score=0.1, max_score=1.):
+def compute_score(solution_str, ground_truth, format_score=0.1, max_score=1., max_cpl=1000):
     """The scoring function for chess task.
     
     Args:
@@ -77,9 +76,8 @@ def compute_score(solution_str, ground_truth, format_score=0.1, max_score=1.):
     for rank, candidate in enumerate(candidate_moves, start=1):
         if move == candidate['move']:
             cpl = candidate['cpl']
-            # Normalize CPL to a score between the midpoint of format_score and max_score, and max_score
-            midpoint = (format_score + max_score) / 2
-            score = max(midpoint, max_score - (cpl / 20) * (max_score - midpoint))
+            # Normalize CPL to a score between format_score and max_score
+            score = max(format_score, max_score - (cpl / max_cpl) * (max_score - format_score))
             
             if do_print:
                 print(f"Extracted move {move} is the rank {rank} candidate move with CPL: {cpl}, Eval: {candidate['eval']}, Score: {score}")

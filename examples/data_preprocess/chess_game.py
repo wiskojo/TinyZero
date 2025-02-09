@@ -18,8 +18,8 @@ def gen_dataset(
     num_samples: int,
     max_moves: int = 100,
     seed_value: int = 42,
-    top_n: int = 10,
-    cpl_threshold: int = 20,
+    top_n: int = 100,
+    cpl_threshold: int = 1000,
     mate_value: int = 100000,
     stockfish_path: str = "/path/to/stockfish",
     stockfish_depth: int = 50,
@@ -104,14 +104,14 @@ def make_prompt(position: str, template_type: str = "base") -> str:
     if template_type == "base":
         prompt = (
             f"A conversation between User and Assistant. The user asks a question, and the Assistant solves it.\n"
-            f'User: Given the chess position "{position}", what is the best move? Show your work in <think> </think> tags. And return the best move in UCI format within <move> </move> tags.\n'
+            f'User: Given the chess position "{position}", what is the best move? Show your work in <think> </think> tags. And return the best move in UCI format within <answer> </answer> tags.\n'
             f"Assistant: Let me think step by step.\n"
             f"<think>"
         )
     elif template_type == "qwen-instruct":
         prompt = (
             f"<|im_start|>system\nYou are a helpful chess assistant. Analyze the chess position and provide the best move along with your reasoning.\n<|im_end|>\n"
-            f'<|im_start|>user\nGiven the chess position "{position}", what is the best move? Show your work in <think> </think> tags. And return the best move in UCI format within <move> </move> tags.<|im_end|>\n'
+            f'<|im_start|>user\nGiven the chess position "{position}", what is the best move? Show your work in <think> </think> tags. And return the best move in UCI format within <answer> </answer> tags.<|im_end|>\n'
             f"<|im_start|>assistant\nLet me think step by step.\n<think>"
         )
     else:
@@ -154,12 +154,12 @@ if __name__ == "__main__":
     TRAIN_SIZE = args.train_size
     TEST_SIZE = args.test_size
 
-    # Generate raw chess samples (position and best move tuples).
     dataset_raw = gen_dataset(
         num_samples=args.num_samples,
         max_moves=args.max_moves,
         stockfish_path=args.stockfish_path,
     )
+    random.shuffle(dataset_raw)
 
     assert len(dataset_raw) >= TRAIN_SIZE + TEST_SIZE
     train_dataset = dataset_raw[:TRAIN_SIZE]
